@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PassGuard - Secure Password Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Smooth, hardware-accelerated transitions */
+        .bar-transition {
+            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .req-transition {
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+        .req-met {
+            color: #e2e8f0; /* Tailwind slate-200 */
+        }
+        .req-unmet {
+            color: #64748b; /* Tailwind slate-500 */
+        }
+        
+        /* Subtle GIF Fade/Scale Animation */
+        @keyframes subtlePop {
+            0% { transform: scale(0.5) translateY(4px); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .gif-pop {
+            animation: subtlePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Card Entrance Animation */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Checkmark Satisfaction Pop */
+        @keyframes checkPop {
+            0% { transform: scale(0.8) rotate(-15deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .check-pop {
+            animation: checkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Focus Glow Effect for Input */
+        .input-glow:focus-within {
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2), 0 0 24px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Ambient Blob Animations */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(40px, -60px) scale(1.1); }
+            66% { transform: translate(-30px, 30px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 10s infinite alternate;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+
+        /* Premium Dark Grid Background */
+        body {
+            background-color: #020617; /* Tailwind slate-950 */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-position: center center;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans text-slate-300 antialiased overflow-x-hidden relative selection:bg-blue-500/30">
+
+    <!-- Navigation Bar -->
+    <header class="w-full fixed top-0 left-0 right-0 z-50 bg-slate-950/60 backdrop-blur-lg border-b border-white/5">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-white">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <span class="font-bold text-lg tracking-tight">PassGuard</span>
+            </div>
+            <nav class="hidden sm:flex gap-6 text-sm font-medium text-slate-400">
+                <a href="#" class="hover:text-white transition-colors">Features</a>
+                <a href="#" class="hover:text-white transition-colors">Security</a>
+                <a href="#" class="hover:text-white transition-colors">API</a>
+            </nav>
+            <div class="flex items-center">
+                <button class="text-xs font-semibold bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-all">
+                    Get Extension
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-center justify-center px-4 pt-24 pb-12 relative z-10">
+        
+        <!-- Decorative Background Orbs -->
+        <div class="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-60 animate-blob pointer-events-none"></div>
+        <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-indigo-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-60 animate-blob animation-delay-2000 pointer-events-none"></div>
+        <div class="absolute bottom-1/4 left-1/3 w-[500px] h-[500px] bg-purple-600/20 rounded-full mix-blend-screen filter blur-[120px] opacity-60 animate-blob animation-delay-4000 pointer-events-none"></div>
+
+        <!-- Premium Dark Glass Card -->
+        <div class="relative bg-slate-900/60 backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-slate-700/50 w-full max-w-md p-8 sm:p-10 space-y-8 animate-fade-in-up hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-all duration-500">
+            
+            <!-- Header -->
+            <div class="space-y-3 text-center">
+                <h1 class="text-3xl font-bold text-white tracking-tight">Strength Checker</h1>
+                <p class="text-sm text-slate-400 font-medium">Test your password resilience in real-time.</p>
+            </div>
+
+            <!-- Input Area -->
+            <div class="relative group input-glow rounded-xl transition-shadow duration-300">
+                <div class="flex justify-between items-end mb-2">
+                    <label for="password-input" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Your Password</label>
+                </div>
+                
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="password-input" 
+                        placeholder="Type a password..." 
+                        class="w-full pl-5 pr-20 py-3.5 rounded-xl border border-slate-700 bg-slate-950/50 backdrop-blur-sm text-white focus:bg-slate-900 focus:border-blue-500 outline-none transition-all placeholder:text-slate-600 shadow-inner text-lg tracking-wider font-mono"
+                    >
+                    
+                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                        <!-- Auto Generate Button -->
+                        <button 
+                            type="button" 
+                            id="generate-btn" 
+                            class="text-slate-500 hover:text-blue-400 focus:outline-none p-2 rounded-lg hover:bg-slate-800 transition-colors"
+                            title="Generate Secure Password"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                                <path d="M5 3h4v4H5z"/>
+                            </svg>
+                        </button>
+                        
+                        <!-- Toggle Visibility -->
+                        <button 
+                            type="button" 
+                            id="toggle-visibility" 
+                            class="text-slate-500 hover:text-white focus:outline-none p-2 rounded-lg hover:bg-slate-800 transition-colors"
+                            title="Show/Hide Password"
+                        >
+                            <!-- Eye Icon -->
+                            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <!-- Eye Off Icon (Hidden by default) -->
+                            <svg id="eye-off-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                                <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                                <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                                <line x1="2" x2="22" y1="2" y2="22"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strength Indicator -->
+            <div class="space-y-3 bg-slate-950/40 p-5 rounded-2xl border border-white/5">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Security Level</span>
+                    <div class="flex items-center gap-3">
+                        <span id="strength-text" class="text-sm font-bold text-slate-500 transition-colors duration-300 uppercase tracking-wide">Empty</span>
+                        <!-- Glass Animated GIF Badge -->
+                        <div id="gif-badge" class="bg-slate-800/50 border border-slate-700/50 rounded-xl w-12 h-12 flex items-center justify-center shadow-inner transition-all duration-300 relative overflow-hidden">
+                            <!-- Using Google Noto Animated Emojis for GIF effects -->
+                            <img id="strength-gif" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif" alt="Empty" class="w-8 h-8 object-contain">
+                        </div>
+                    </div>
+                </div>
+                <!-- Progress Bar Background -->
+                <div class="h-2 w-full bg-slate-800 rounded-full overflow-visible">
+                    <!-- Progress Bar Fill -->
+                    <div id="strength-bar" class="h-full w-0 bg-slate-600 bar-transition rounded-full relative"></div>
+                </div>
+            </div>
+
+            <!-- Requirements Checklist -->
+            <div>
+                <h3 class="text-xs font-semibold text-slate-500 mb-4 uppercase tracking-widest">Must contain:</h3>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li id="req-length" class="flex items-center gap-3 req-transition req-unmet group">
+                        <div class="w-5 h-5 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-700 icon-wrapper transition-colors">
+                            <svg class="w-3 h-3 icon-check hidden text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span>8+ Characters minimum</span>
+                    </li>
+                    <li id="req-upper" class="flex items-center gap-3 req-transition req-unmet group">
+                        <div class="w-5 h-5 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-700 icon-wrapper transition-colors">
+                            <svg class="w-3 h-3 icon-check hidden text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span>Uppercase letter (A-Z)</span>
+                    </li>
+                    <li id="req-lower" class="flex items-center gap-3 req-transition req-unmet group">
+                        <div class="w-5 h-5 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-700 icon-wrapper transition-colors">
+                            <svg class="w-3 h-3 icon-check hidden text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span>Lowercase letter (a-z)</span>
+                    </li>
+                    <li id="req-number" class="flex items-center gap-3 req-transition req-unmet group">
+                        <div class="w-5 h-5 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-700 icon-wrapper transition-colors">
+                            <svg class="w-3 h-3 icon-check hidden text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span>Number (0-9)</span>
+                    </li>
+                    <li id="req-symbol" class="flex items-center gap-3 req-transition req-unmet group">
+                        <div class="w-5 h-5 flex items-center justify-center rounded-full bg-slate-800/80 border border-slate-700 icon-wrapper transition-colors">
+                            <svg class="w-3 h-3 icon-check hidden text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span>Special character (!@#$...)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-6 border-t border-white/5 bg-slate-950/30 backdrop-blur-sm z-10">
+        <p class="text-slate-500 text-sm font-medium">© 2024 PassGuard Inc. Built with advanced security standards.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('password-input');
+            const toggleVisibilityBtn = document.getElementById('toggle-visibility');
+            const generateBtn = document.getElementById('generate-btn');
+            const eyeIcon = document.getElementById('eye-icon');
+            const eyeOffIcon = document.getElementById('eye-off-icon');
+            
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthText = document.getElementById('strength-text');
+            const strengthGif = document.getElementById('strength-gif');
+            const gifBadge = document.getElementById('gif-badge');
+
+            // Requirement Elements
+            const reqLength = document.getElementById('req-length');
+            const reqLower = document.getElementById('req-lower');
+            const reqUpper = document.getElementById('req-upper');
+            const reqNumber = document.getElementById('req-number');
+            const reqSymbol = document.getElementById('req-symbol');
+
+            let currentStrengthState = 'none';
+
+            const patterns = {
+                length: /^.{8,}$/,
+                lower: /[a-z]/,
+                upper: /[A-Z]/,
+                number: /[0-9]/,
+                symbol: /[^A-Za-z0-9]/
+            };
+
+            // Toggle Password Visibility
+            toggleVisibilityBtn.addEventListener('click', () => {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeIcon.classList.add('hidden');
+                    eyeOffIcon.classList.remove('hidden');
+                } else {
+                    passwordInput.type = 'password';
+                    eyeIcon.classList.remove('hidden');
+                    eyeOffIcon.classList.add('hidden');
+                }
+            });
+
+            // Generate Secure Password Feature
+            generateBtn.addEventListener('click', () => {
+                const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*_-+=";
+                let generated = "";
+                // Guarantee one of each requirement
+                generated += "A"; 
+                generated += "a";
+                generated += "1";
+                generated += "!";
+                // Fill the rest to make it length 16
+                for(let i = 0; i < 12; i++) {
+                    generated += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                // Shuffle string
+                generated = generated.split('').sort(() => 0.5 - Math.random()).join('');
+                
+                // Update input and show it briefly
+                passwordInput.value = generated;
+                passwordInput.type = 'text';
+                eyeIcon.classList.add('hidden');
+                eyeOffIcon.classList.remove('hidden');
+                
+                // Trigger input event to update meter
+                passwordInput.dispatchEvent(new Event('input'));
+            });
+
+            function updateRequirement(element, isMet) {
+                const checkIcon = element.querySelector('.icon-check');
+                const wrapper = element.querySelector('.icon-wrapper');
+                const wasMetBefore = element.classList.contains('req-met');
+
+                if (isMet) {
+                    element.classList.remove('req-unmet');
+                    element.classList.add('req-met');
+                    checkIcon.classList.remove('hidden');
+                    wrapper.classList.replace('bg-slate-800/80', 'bg-emerald-500/20');
+                    wrapper.classList.replace('border-slate-700', 'border-emerald-500/50');
+                    
+                    if (!wasMetBefore) {
+                        checkIcon.classList.remove('check-pop');
+                        void checkIcon.offsetWidth; 
+                        checkIcon.classList.add('check-pop');
+                    }
+                } else {
+                    element.classList.remove('req-met');
+                    element.classList.add('req-unmet');
+                    checkIcon.classList.add('hidden');
+                    wrapper.classList.replace('bg-emerald-500/20', 'bg-slate-800/80');
+                    wrapper.classList.replace('border-emerald-500/50', 'border-slate-700');
+                }
+            }
+
+            function updateGifBadge(gifUrl, altText, stateName, badgeColorClass) {
+                if (currentStrengthState !== stateName) {
+                    // Update Image Source
+                    strengthGif.src = gifUrl;
+                    strengthGif.alt = altText;
+                    
+                    // Trigger Animation
+                    strengthGif.classList.remove('gif-pop');
+                    void strengthGif.offsetWidth; 
+                    strengthGif.classList.add('gif-pop');
+                    
+                    // Reset old badge colors
+                    gifBadge.className = `border rounded-xl w-12 h-12 flex items-center justify-center shadow-inner transition-all duration-300 relative overflow-hidden ${badgeColorClass}`;
+                    currentStrengthState = stateName;
+                }
+            }
+
+            passwordInput.addEventListener('input', (e) => {
+                const password = e.target.value;
+                let score = 0;
+
+                const isLengthMet = patterns.length.test(password);
+                const isLowerMet = patterns.lower.test(password);
+                const isUpperMet = patterns.upper.test(password);
+                const isNumberMet = patterns.number.test(password);
+                const isSymbolMet = patterns.symbol.test(password);
+
+                updateRequirement(reqLength, isLengthMet);
+                updateRequirement(reqLower, isLowerMet);
+                updateRequirement(reqUpper, isUpperMet);
+                updateRequirement(reqNumber, isNumberMet);
+                updateRequirement(reqSymbol, isSymbolMet);
+
+                if (isLengthMet) score += 1;
+                if (isLowerMet) score += 1;
+                if (isUpperMet) score += 1;
+                if (isNumberMet) score += 1;
+                if (isSymbolMet) score += 1;
+
+                if (password.length === 0) {
+                    strengthBar.style.width = '0%';
+                    strengthBar.style.backgroundColor = '#475569'; // slate-600
+                    strengthBar.style.boxShadow = 'none';
+                    strengthText.textContent = 'Empty';
+                    strengthText.style.color = '#64748b'; // slate-500
+                    updateGifBadge('https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif', 'Empty', 'none', 'bg-slate-800/50 border-slate-700/50');
+
+                } else if (score <= 2) {
+                    strengthBar.style.width = '33.33%';
+                    strengthBar.style.backgroundColor = '#ef4444'; // red-500
+                    strengthBar.style.boxShadow = '0 0 16px rgba(239, 68, 68, 0.4)';
+                    strengthText.textContent = 'Weak';
+                    strengthText.style.color = '#ef4444';
+                    updateGifBadge('https://fonts.gstatic.com/s/e/notoemoji/latest/1f630/512.gif', 'Weak', 'weak', 'bg-red-500/10 border-red-500/30');
+
+                } else if (score === 3 || score === 4) {
+                    strengthBar.style.width = '66.66%';
+                    strengthBar.style.backgroundColor = '#fbbf24'; // amber-400
+                    strengthBar.style.boxShadow = '0 0 16px rgba(251, 191, 36, 0.4)';
+                    strengthText.textContent = 'Medium';
+                    strengthText.style.color = '#fbbf24';
+                    updateGifBadge('https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif', 'Medium', 'medium', 'bg-amber-400/10 border-amber-400/30');
+
+                } else if (score === 5) {
+                    strengthBar.style.width = '100%';
+                    strengthBar.style.backgroundColor = '#34d399'; // emerald-400
+                    strengthBar.style.boxShadow = '0 0 20px rgba(52, 211, 153, 0.5)';
+                    strengthText.textContent = 'Strong';
+                    strengthText.style.color = '#34d399';
+                    updateGifBadge('https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif', 'Strong', 'strong', 'bg-emerald-400/10 border-emerald-400/30');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
